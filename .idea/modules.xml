@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/CACCommonModule/CACCommonModule.iml" filepath="$PROJECT_DIR$/CACCommonModule/CACCommonModule.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CACCommonModule.iml" filepath="$PROJECT_DIR$/CACCommonModule.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CACCommonModule/CACCommonModule-CACCommonModule.iml" filepath="$PROJECT_DIR$/CACCommonModule/CACCommonModule-CACCommonModule.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CommonModule.iml" filepath="$PROJECT_DIR$/CommonModule.iml" />
+    </modules>
+  </component>
+</project>
