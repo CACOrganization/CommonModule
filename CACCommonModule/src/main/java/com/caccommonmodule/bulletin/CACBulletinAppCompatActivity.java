@@ -12,6 +12,7 @@ import android.util.Log;
 import com.caccommonmodule.CACApplication;
 import com.caccommonmodule.util.DialogHelper;
 import com.caccommonmodule.util.NetWorkCheckUtil;
+import com.caccommonmodule.util.SharedPrefUtil;
 
 /**
  * Created by ac on 2017/1/13.
@@ -26,6 +27,8 @@ public abstract class CACBulletinAppCompatActivity extends AppCompatActivity {
     private static final String objectSharepreferenceKey = "hashObject";
     protected Object object = new Object();
     private DialogHelper mDialogHelper;
+    private SharedPrefUtil mSharedPrefUtil;
+    private boolean isDialogCancelable = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -45,10 +48,10 @@ public abstract class CACBulletinAppCompatActivity extends AppCompatActivity {
         Log.e(TAG, "onResume()");
         if (NetWorkCheckUtil.checkNetWork(this)) {
             Log.e("getClass", getClass().toString());
-            if (getMainApp().getSharedPrefUtil().getInt(objectSharepreferenceKey).equals(object.hashCode())
+            if (/*getMainApp().*/getSharedPrefUtil().getInt(objectSharepreferenceKey).equals(object.hashCode())
                     && !getClass().equals(setLoadingBulletinActivity())
                     && !callIntent
-                    || getMainApp().getSharedPrefUtil().getInt(objectSharepreferenceKey).intValue() == 0) {
+                    || /*getMainApp().*/getSharedPrefUtil().getInt(objectSharepreferenceKey).intValue() == 0) {
                 // 表示使用者正從Home Screen進入到本App,在這個時機點上,要做點事情
                 startLoadingBulletin();
                 doAnotherThingForBackground2Foreground();
@@ -61,7 +64,8 @@ public abstract class CACBulletinAppCompatActivity extends AppCompatActivity {
             // imgNoNetwork.setVisibility(View.VISIBLE);
         }
 
-        getMainApp().getSharedPrefUtil().put(objectSharepreferenceKey, object.hashCode());
+        /*getMainApp().*/
+        getSharedPrefUtil().put(objectSharepreferenceKey, object.hashCode());
 //        getMainApp().o = o;
 
         callIntent = false;
@@ -70,19 +74,42 @@ public abstract class CACBulletinAppCompatActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(mDialogHelper != null)
+        if (mDialogHelper != null)
             mDialogHelper.release();
         object = null;
         context = null;
     }
 
-    private CACApplication getMainApp(){
-        return (CACApplication)getApplicationContext();
+    private CACApplication getMainApp() {
+        return (CACApplication) getApplicationContext();
+    }
+
+    /**
+     * sharepreference Util
+     * key "104group"
+     *
+     * @return SharedPrefUtil
+     */
+    public SharedPrefUtil getSharedPrefUtil() {
+        mSharedPrefUtil = SharedPrefUtil.getInstance(this);
+        return mSharedPrefUtil;
+    }
+
+    /**
+     * sharepreference Util change key
+     *
+     * @param ShredPrefKeyName
+     * @return
+     */
+    public SharedPrefUtil newSharedPrefUtil(String ShredPrefKeyName) {
+        mSharedPrefUtil = SharedPrefUtil.newInstance(this, ShredPrefKeyName);
+        return mSharedPrefUtil;
     }
 
     /**
      * 背景到前景
      * 要做那隻activity
+     *
      * @return Class
      */
     protected abstract Class<?> setLoadingBulletinActivity();
@@ -103,12 +130,14 @@ public abstract class CACBulletinAppCompatActivity extends AppCompatActivity {
      */
     protected abstract void networkConnectionStatus(boolean isFail);
 
-    protected void startLoadingBulletin(){
+    protected void startLoadingBulletin() {
         Log.i(TAG, "load sync");
         Intent intent = new Intent();
         intent.setClass(this, setLoadingBulletinActivity());
         startActivityForResult(intent, REQUESTCODE);
-    };
+    }
+
+    ;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -120,37 +149,39 @@ public abstract class CACBulletinAppCompatActivity extends AppCompatActivity {
         }
     }
 
-    protected void setNotDoLoadingBulletin(){
+    protected void setNotDoLoadingBulletin() {
         callIntent = true;
-    };
+    }
+
+    ;
 
     protected void showLoadingDialog(int messageId, DialogHelper.DismissListener dismissListener) {
-        if(context != null)
+        if (context != null)
             getDialogHelper().addDismissListener(dismissListener).showLoadingProgressDialog(messageId);
     }
 
     protected void showLoadingDialog(int messageId) {
-        if(context != null)
+        if (context != null)
             getDialogHelper().showLoadingProgressDialog(messageId);
     }
 
     public void showLoadingDialog(int messageId, boolean isCancelable) {
-        if(context != null)
+        if (context != null)
             getDialogHelper().showLoadingProgressDialog(messageId, isCancelable);
     }
 
     public void hideLoadingDialog() {
-        if(context != null)
+        if (context != null)
             getDialogHelper().hideLoadingProgressDialog();
     }
 
     protected void dismissLoadingDialog() {
-        if(context != null)
+        if (context != null)
             getDialogHelper().dismissLoadingProgressDialog();
     }
 
     protected boolean isShowLoadingDialog() {
-        if(context != null)
+        if (context != null)
             return getDialogHelper().isShowLoadingProgressDialog();
         else
             return false;
@@ -159,7 +190,7 @@ public abstract class CACBulletinAppCompatActivity extends AppCompatActivity {
     protected void showAlertDialog(int titleId, int messageId, int okTextId,
                                    DialogInterface.OnClickListener okListener, int cancelTextId,
                                    DialogInterface.OnClickListener cancelListener) {
-        if(context != null)
+        if (context != null)
             getDialogHelper().showAlertDialog(titleId, messageId, okTextId,
                     okListener, cancelTextId, cancelListener);
     }
@@ -167,7 +198,7 @@ public abstract class CACBulletinAppCompatActivity extends AppCompatActivity {
     protected void showAlertDialog(int titleId, String message, int okTextId,
                                    DialogInterface.OnClickListener okListener, int cancelTextId,
                                    DialogInterface.OnClickListener cancelListener) {
-        if(context != null)
+        if (context != null)
             getDialogHelper().showAlertDialog(titleId, message, okTextId,
                     okListener, cancelTextId, cancelListener);
     }
@@ -175,7 +206,7 @@ public abstract class CACBulletinAppCompatActivity extends AppCompatActivity {
     public void showAlertDialog(String title, String message, int okTextId,
                                 DialogInterface.OnClickListener okListener, int cancelTextId,
                                 DialogInterface.OnClickListener cancelListener) {
-        if(context != null)
+        if (context != null)
             getDialogHelper().showAlertDialog(title, message, okTextId,
                     okListener, cancelTextId, cancelListener);
     }
@@ -183,7 +214,7 @@ public abstract class CACBulletinAppCompatActivity extends AppCompatActivity {
     public void showAlertDialog(String title, String message, int okTextId,
                                 DialogInterface.OnClickListener okListener, int cancelTextId,
                                 DialogInterface.OnClickListener cancelListener, int isHtmlFormat) {
-        if(context != null)
+        if (context != null)
             getDialogHelper().showAlertDialog(title, message, okTextId,
                     okListener, cancelTextId, cancelListener, isHtmlFormat);
     }
@@ -191,7 +222,7 @@ public abstract class CACBulletinAppCompatActivity extends AppCompatActivity {
     public void showAlertDialog(String title, String message, int okTextId,
                                 DialogInterface.OnClickListener okListener, int cancelTextId,
                                 DialogInterface.OnClickListener cancelListener, boolean cancelable) {
-        if(context != null)
+        if (context != null)
             getDialogHelper().showAlertDialog(title, message, okTextId,
                     okListener, cancelTextId, cancelListener, cancelable);
     }
@@ -199,19 +230,31 @@ public abstract class CACBulletinAppCompatActivity extends AppCompatActivity {
     public void showAlertDialog(String title, String message, String okText,
                                 DialogInterface.OnClickListener okListener, String cancelText,
                                 DialogInterface.OnClickListener cancelListener) {
-        if(context != null)
+        if (context != null)
             getDialogHelper().showAlertDialog(title, message, okText,
                     okListener, cancelText, cancelListener);
     }
 
     public void dismissAlerDialog() {
-        if(context != null)
+        if (context != null)
             getDialogHelper().dismissAlerDialog();
     }
 
-    protected DialogHelper getDialogHelper(){
-        if(mDialogHelper == null)
-            mDialogHelper = new DialogHelper(this, getMainApp().isDialogCancelable());
+    protected DialogHelper getDialogHelper() {
+        boolean isDialogCancelable = false;
+        try {
+            isDialogCancelable = getMainApp().isDialogCancelable();
+        } catch (Exception e) {
+            isDialogCancelable = this.isDialogCancelable;
+        }
+
+        if (mDialogHelper == null)
+            mDialogHelper = new DialogHelper(this, isDialogCancelable);
         return mDialogHelper;
+    }
+
+    public boolean setDialogCancelable(boolean isDialogCancelable) {
+        this.isDialogCancelable = isDialogCancelable;
+        return isDialogCancelable;
     }
 }

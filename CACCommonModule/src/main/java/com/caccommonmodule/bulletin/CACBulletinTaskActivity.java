@@ -11,6 +11,7 @@ import android.util.Log;
 import com.caccommonmodule.CACApplication;
 import com.caccommonmodule.util.DialogHelper;
 import com.caccommonmodule.util.NetWorkCheckUtil;
+import com.caccommonmodule.util.SharedPrefUtil;
 
 /**
  * Created by ac on 2017/1/13.
@@ -25,6 +26,8 @@ public abstract class CACBulletinTaskActivity extends Activity {
     private String objectSharepreferenceKey = "hashObject";
     private Object object = new Object();
     private DialogHelper mDialogHelper;
+    private SharedPrefUtil mSharedPrefUtil;
+    private boolean isDialogCancelable = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -43,9 +46,9 @@ public abstract class CACBulletinTaskActivity extends Activity {
         super.onResume();
         if (NetWorkCheckUtil.checkNetWork(this)) {
             Log.e("getClass", getClass().toString());
-            if (getMainApp().getSharedPrefUtil().getInt(objectSharepreferenceKey).equals(object.hashCode())
+            if (/*getMainApp().*/getSharedPrefUtil().getInt(objectSharepreferenceKey).equals(object.hashCode())
                     && !callIntent
-                    || getMainApp().getSharedPrefUtil().getInt(objectSharepreferenceKey).intValue() == 0) {
+                    || /*getMainApp().*/getSharedPrefUtil().getInt(objectSharepreferenceKey).intValue() == 0) {
                 // 表示使用者正從Home Screen進入到本App,在這個時機點上,要做點事情
                 Log.i(TAG, "load sync");
                 doLoadingBulletinTask();
@@ -56,7 +59,7 @@ public abstract class CACBulletinTaskActivity extends Activity {
         } else {
             // imgNoNetwork.setVisibility(View.VISIBLE);
         }
-        getMainApp().getSharedPrefUtil().put(objectSharepreferenceKey, object.hashCode());
+        /*getMainApp().*/getSharedPrefUtil().put(objectSharepreferenceKey, object.hashCode());
         callIntent = false;
     }
 
@@ -71,6 +74,28 @@ public abstract class CACBulletinTaskActivity extends Activity {
 
     private CACApplication getMainApp(){
         return (CACApplication)getApplicationContext();
+    }
+
+    /**
+     * sharepreference Util
+     * key "104group"
+     *
+     * @return SharedPrefUtil
+     */
+    public SharedPrefUtil getSharedPrefUtil() {
+        mSharedPrefUtil = SharedPrefUtil.getInstance(this);
+        return mSharedPrefUtil;
+    }
+
+    /**
+     * sharepreference Util change key
+     *
+     * @param ShredPrefKeyName
+     * @return
+     */
+    public SharedPrefUtil newSharedPrefUtil(String ShredPrefKeyName) {
+        mSharedPrefUtil = SharedPrefUtil.newInstance(this, ShredPrefKeyName);
+        return mSharedPrefUtil;
     }
 
     protected abstract void doLoadingBulletinTask();
@@ -165,10 +190,22 @@ public abstract class CACBulletinTaskActivity extends Activity {
             getDialogHelper().dismissAlerDialog();
     }
 
-    protected DialogHelper getDialogHelper(){
-        if(mDialogHelper == null)
-            mDialogHelper = new DialogHelper(this, getMainApp().isDialogCancelable());
+    protected DialogHelper getDialogHelper() {
+        boolean isDialogCancelable = false;
+        try {
+            isDialogCancelable = getMainApp().isDialogCancelable();
+        } catch (Exception e) {
+            isDialogCancelable = this.isDialogCancelable;
+        }
+
+        if (mDialogHelper == null)
+            mDialogHelper = new DialogHelper(this, isDialogCancelable);
         return mDialogHelper;
+    }
+
+    public boolean setDialogCancelable(boolean isDialogCancelable) {
+        this.isDialogCancelable = isDialogCancelable;
+        return isDialogCancelable;
     }
 }
 
